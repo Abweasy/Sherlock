@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="color-scheme" content="dark" />
+    <title>The Clockmaker's Vault</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23c99b46'/%3E%3Ccircle cx='16' cy='16' r='10' fill='%23231a12'/%3E%3Cpath d='M16 9v7l5 3' stroke='%23f1e6cc' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"
+    />
+  </head>
+  <body>
+    <canvas id="scene"></canvas>
+
+    <div id="hud" class="hidden">
+      <div class="panel top-left">
+        <div id="room-name" class="room-name"></div>
+        <ol id="progress" class="progress"></ol>
+      </div>
+
+      <div class="panel top-right">
+        <div id="timer" class="timer">--:--</div>
+        <div id="partner" class="partner"></div>
+        <div id="partner-look" class="partner-look"></div>
+      </div>
+
+      <div id="spectate" class="spectate hidden">
+        <span>Watching</span>
+        <button data-view="study">Study</button>
+        <button data-view="workshop">Workshop</button>
+      </div>
+
+      <div id="tooltip" class="tooltip hidden"></div>
+      <div id="holding" class="holding hidden">You're holding the <b>brass gear</b></div>
+      <ul id="feed" class="feed"></ul>
+
+      <div class="actions">
+        <button id="btn-hint" type="button" aria-label="Hint">
+          <svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z" /></svg>
+          <span>Hint</span>
+        </button>
+        <button id="btn-zoom" type="button" aria-label="Zoom">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6" /><path d="M20 20l-4.5-4.5M11 8v6M8 11h6" /></svg>
+          <span>Zoom</span>
+        </button>
+        <button id="btn-sound" type="button" aria-label="Sound">
+          <svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z" /><path id="sound-wave" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" /></svg>
+          <span>Sound</span>
+        </button>
+        <button id="btn-new" type="button" class="hidden new-case" aria-label="New case">
+          <svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4" /></svg>
+          <span>New case</span>
+        </button>
+        <button id="btn-menu" type="button" aria-label="Rooms">
+          <svg viewBox="0 0 24 24"><path d="M5 21V4h10v17M15 6h4v15M3 21h18M12 12.5v.5" /></svg>
+          <span>Rooms</span>
+        </button>
+      </div>
+
+      <div id="toasts" class="toasts" aria-live="polite"></div>
+    </div>
+
+    <div id="lobby" class="overlay">
+      <div class="card lobby-card">
+        <div class="eyebrow">A two-player co-op puzzle</div>
+        <h1>The Clockmaker's Vault</h1>
+        <p class="story">
+          Old Hollis the clockmaker locked his life's work in a vault that only opens for
+          <em>two minds working as one</em>. One of you wakes up in his <b>Study</b>, the other in his
+          <b>Workshop</b>. You can't see each other's rooms, so <b>talk</b>, describe what you see, and
+          crack it together.
+        </p>
+
+        <form id="step-name" class="step hidden" autocomplete="off">
+          <label>Your name <input id="in-name" maxlength="24" required placeholder="Detective" /></label>
+          <label>Room code <input id="in-room" maxlength="24" required /></label>
+          <p class="fine">Send your partner the same room code (or the link) so you land in the same case.</p>
+          <button type="submit" class="primary">Join the case</button>
+        </form>
+
+        <div id="step-role" class="step hidden">
+          <div class="roles">
+            <button type="button" class="role" data-role="study">
+              <span class="role-title">The Study</span>
+              <span class="role-desc">Lamps, a bell, an iron safe</span>
+              <span class="role-who" data-who="study"></span>
+            </button>
+            <button type="button" class="role" data-role="workshop">
+              <span class="role-title">The Workshop</span>
+              <span class="role-desc">Buttons, a chalkboard, an old clock</span>
+              <span class="role-who" data-who="workshop"></span>
+            </button>
+          </div>
+          <button type="button" class="link" data-role="spectator">Just watch</button>
+          <div id="share" class="share hidden">
+            <span>Invite link</span>
+            <code id="share-link"></code>
+            <button type="button" id="btn-copy">Copy</button>
+          </div>
+          <ul class="how">
+            <li><b>Drag</b> to look around · <b>scroll / pinch</b> to zoom</li>
+            <li><b>Click or tap</b> things to use them</li>
+            <li>Stuck? Hit <b>Hint</b>. No reading your partner's screen!</li>
+          </ul>
+          <button type="button" id="btn-enter" class="primary">Enter</button>
+        </div>
+
+        <div id="lobby-status" class="status"></div>
+      </div>
+    </div>
+
+    <div id="inspect" class="overlay hidden">
+      <div class="card inspect-card">
+        <img id="inspect-img" alt="" />
+        <p id="inspect-caption"></p>
+        <button type="button" id="inspect-close" class="primary">Close</button>
+      </div>
+    </div>
+
+    <div id="victory" class="overlay hidden">
+      <div class="card victory-card">
+        <div class="eyebrow">Case closed</div>
+        <h1>The vault is open!</h1>
+        <p id="victory-time" class="victory-time"></p>
+        <p id="victory-names" class="fine"></p>
+        <div class="row">
+          <button type="button" id="btn-look" class="secondary">Look around</button>
+          <button type="button" id="btn-again" class="primary">New case</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

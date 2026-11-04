@@ -1,0 +1,26 @@
+{
+  "name": "clockmakers-vault",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A two-player co-op 3D puzzle game that runs as a Discord Activity (or in any browser).",
+  "type": "module",
+  "engines": {
+    "node": ">=20.12"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n server,client -c magenta,cyan \"node --watch server/index.js\" \"vite\"",
+    "build": "vite build",
+    "start": "node server/index.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@discord/embedded-app-sdk": "^2.5.0",
+    "express": "^5.3.0",
+    "three": "^0.187.0",
+    "ws": "^8.22.1"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.6",
+    "vite": "^8.3.5"
+  }
+}
