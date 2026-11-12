@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sherlock Media Player</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="app" id="app">
+    <header class="topbar">
+      <h1 class="brand">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+        Sherlock
+      </h1>
+      <div class="topbar-actions">
+        <label class="btn btn-primary" for="file-input">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"/></svg>
+          Add files
+        </label>
+        <input id="file-input" type="file" accept="audio/*,video/*" multiple hidden>
+        <button class="btn icon-only" id="help-btn" type="button" title="Keyboard shortcuts (?)" aria-label="Keyboard shortcuts">?</button>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="stage" id="stage">
+        <video id="media" playsinline preload="metadata"></video>
+        <canvas id="visualizer" aria-hidden="true"></canvas>
+
+        <div class="now-playing-card" id="audio-card" hidden>
+          <div class="cover" id="cover" aria-hidden="true">♪</div>
+          <div class="np-title" id="audio-title"></div>
+        </div>
+
+        <div class="empty-state" id="empty-state">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg>
+          <p class="empty-title">Drop audio or video files here</p>
+          <p class="empty-sub">or use <strong>Add files</strong> to pick them from your computer</p>
+        </div>
+
+        <div class="stage-flash" id="stage-flash" aria-hidden="true"></div>
+        <div class="drop-overlay" id="drop-overlay"><span>Drop to add to playlist</span></div>
+      </section>
+
+      <aside class="sidebar" aria-label="Playlist">
+        <div class="sidebar-header">
+          <h2>Playlist <span class="count" id="playlist-count">0</span></h2>
+          <button class="btn btn-ghost btn-small" id="clear-btn" type="button" disabled>Clear</button>
+        </div>
+        <ol class="playlist" id="playlist"></ol>
+        <p class="playlist-empty" id="playlist-empty">No tracks yet.</p>
+      </aside>
+    </main>
+
+    <footer class="controls" id="controls">
+      <div class="seek-row">
+        <span class="time" id="current-time">0:00</span>
+        <input type="range" class="seek" id="seek" min="0" max="0" step="0.01" value="0" aria-label="Seek" disabled>
+        <span class="time" id="duration">0:00</span>
+      </div>
+
+      <div class="button-row">
+        <div class="now-playing" id="now-playing">
+          <span class="np-label">Nothing playing</span>
+        </div>
+
+        <div class="transport">
+          <button class="ctrl" id="shuffle-btn" type="button" title="Shuffle (S)" aria-label="Shuffle" aria-pressed="false">
+            <svg viewBox="0 0 24 24"><path d="M10.59 9.17 5.41 4 4 5.41l5.17 5.17zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4zm.33 9.41-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04z"/></svg>
+          </button>
+          <button class="ctrl" id="prev-btn" type="button" title="Previous (P)" aria-label="Previous">
+            <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+          </button>
+          <button class="ctrl ctrl-main" id="play-btn" type="button" title="Play (Space)" aria-label="Play">
+            <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            <svg class="icon-pause" viewBox="0 0 24 24"><path d="M6 19h4V5H6zm8-14v14h4V5z"/></svg>
+          </button>
+          <button class="ctrl" id="next-btn" type="button" title="Next (N)" aria-label="Next">
+            <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6zM16 6v12h2V6z"/></svg>
+          </button>
+          <button class="ctrl" id="repeat-btn" type="button" title="Repeat: off (R)" aria-label="Repeat: off" data-mode="off">
+            <svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2z"/></svg>
+            <span class="repeat-one-badge">1</span>
+          </button>
+        </div>
+
+        <div class="extras">
+          <button class="ctrl" id="mute-btn" type="button" title="Mute (M)" aria-label="Mute">
+            <svg class="icon-vol" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+            <svg class="icon-muted" viewBox="0 0 24 24"><path d="M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.8 8.8 0 0 0 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a9 9 0 0 0 3.69-1.81L19.73 21 21 19.73l-9-9zM12 4 9.91 6.09 12 8.18z"/></svg>
+          </button>
+          <input type="range" class="volume" id="volume" min="0" max="1" step="0.01" value="1" aria-label="Volume">
+          <select class="speed" id="speed" title="Playback speed" aria-label="Playback speed">
+            <option value="0.5">0.5×</option>
+            <option value="0.75">0.75×</option>
+            <option value="1" selected>1×</option>
+            <option value="1.25">1.25×</option>
+            <option value="1.5">1.5×</option>
+            <option value="2">2×</option>
+          </select>
+          <button class="ctrl" id="pip-btn" type="button" title="Picture-in-picture" aria-label="Picture-in-picture" hidden>
+            <svg viewBox="0 0 24 24"><path d="M19 7h-8v6h8zm2-4H3a2 2 0 0 0-2 2v14c0 1.1.9 1.98 2 1.98h18c1.1 0 2-.88 2-1.98V5a2 2 0 0 0-2-2zm0 16.01H3V4.98h18z"/></svg>
+          </button>
+          <button class="ctrl" id="fullscreen-btn" type="button" title="Fullscreen (F)" aria-label="Fullscreen">
+            <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7zm-2-4h2V7h3V5H5zm12 7h-3v2h5v-5h-2zM14 5v2h3v3h2V5z"/></svg>
+          </button>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <dialog class="help" id="help-dialog">
+    <h2>Keyboard shortcuts</h2>
+    <dl>
+      <dt><kbd>Space</kbd> / <kbd>K</kbd></dt><dd>Play / pause</dd>
+      <dt><kbd>←</kbd> <kbd>→</kbd></dt><dd>Seek 5 seconds</dd>
+      <dt><kbd>J</kbd> <kbd>L</kbd></dt><dd>Seek 10 seconds</dd>
+      <dt><kbd>↑</kbd> <kbd>↓</kbd></dt><dd>Volume</dd>
+      <dt><kbd>N</kbd> / <kbd>P</kbd></dt><dd>Next / previous track</dd>
+      <dt><kbd>M</kbd></dt><dd>Mute</dd>
+      <dt><kbd>F</kbd></dt><dd>Fullscreen</dd>
+      <dt><kbd>S</kbd></dt><dd>Shuffle</dd>
+      <dt><kbd>R</kbd></dt><dd>Repeat mode</dd>
+      <dt><kbd>0</kbd>–<kbd>9</kbd></dt><dd>Jump to 0%–90%</dd>
+    </dl>
+    <form method="dialog"><button class="btn btn-primary">Close</button></form>
+  </dialog>
+
+  <script src="js/playlist.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
