@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self' file:; style-src 'self' file: 'unsafe-inline'; img-src wallpaper: data:; media-src wallpaper:"
+    />
+    <title>LiveDesk</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand"><span class="logo"></span>LiveDesk</div>
+      <input id="search" type="search" placeholder="Search wallpapers…" autocomplete="off" />
+      <nav class="filters" id="filters">
+        <button data-filter="all" class="active">All</button>
+        <button data-filter="video">Video</button>
+        <button data-filter="web">Web</button>
+        <button data-filter="image">Image</button>
+        <button data-filter="favorites">★ Favorites</button>
+      </nav>
+      <div class="spacer"></div>
+      <label class="target">
+        Apply to
+        <select id="display-target"></select>
+      </label>
+      <button id="btn-next" class="icon" title="Random wallpaper">⤮</button>
+      <button id="btn-pause" class="icon" title="Pause / resume">❚❚</button>
+      <button id="btn-settings" class="icon" title="Settings">⚙</button>
+    </header>
+
+    <main id="main">
+      <section id="grid" class="grid"></section>
+      <section id="empty" class="empty hidden">
+        <h2>Your wallpaper folder is empty</h2>
+        <p>Download live wallpapers (videos, web wallpapers, Wallpaper Engine video/web projects, images) into:</p>
+        <code id="empty-path"></code>
+        <p>…or drag files and folders onto this window to copy them in.</p>
+        <div class="row">
+          <button id="empty-open" class="primary">Open folder</button>
+          <button id="empty-change">Use a different folder</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="statusbar">
+      <span id="status-count"></span>
+      <span id="status-playback"></span>
+      <span class="spacer"></span>
+      <button id="status-folder" class="link" title="Open wallpaper folder"></button>
+    </footer>
+
+    <aside id="settings" class="drawer hidden" aria-label="Settings">
+      <div class="drawer-head">
+        <h2>Settings</h2>
+        <button id="settings-close" class="icon" title="Close">✕</button>
+      </div>
+
+      <h3>Wallpaper folder</h3>
+      <code id="set-path" class="path"></code>
+      <div class="row">
+        <button id="set-change">Change…</button>
+        <button id="set-open">Open</button>
+        <button id="set-rescan">Rescan</button>
+      </div>
+
+      <h3>Playback</h3>
+      <label class="field">
+        <span>Scaling</span>
+        <select id="set-fit">
+          <option value="cover">Fill (crop to screen)</option>
+          <option value="contain">Fit (letterbox)</option>
+          <option value="fill">Stretch</option>
+          <option value="center">Center (no scaling)</option>
+        </select>
+      </label>
+      <label class="field">
+        <span>Video volume <em id="set-volume-val"></em></span>
+        <input id="set-volume" type="range" min="0" max="1" step="0.05" />
+      </label>
+      <label class="field">
+        <span>Video speed <em id="set-rate-val"></em></span>
+        <input id="set-rate" type="range" min="0.25" max="2" step="0.25" />
+      </label>
+      <label class="field">
+        <span>Shuffle every</span>
+        <select id="set-shuffle">
+          <option value="0">Off</option>
+          <option value="5">5 minutes</option>
+          <option value="15">15 minutes</option>
+          <option value="30">30 minutes</option>
+          <option value="60">1 hour</option>
+          <option value="180">3 hours</option>
+          <option value="1440">Daily</option>
+        </select>
+      </label>
+      <p class="hint">Shuffle picks from your favorites when you have at least two, otherwise from everything.</p>
+
+      <h3>Performance</h3>
+      <label class="check"><input id="set-fullscreen" type="checkbox" /> Pause while a full-screen app or game is running</label>
+      <label class="check"><input id="set-battery" type="checkbox" /> Pause while on battery power</label>
+
+      <h3>Startup</h3>
+      <label class="check"><input id="set-login" type="checkbox" /> Start LiveDesk when I sign in</label>
+      <p class="hint" id="desktop-mode"></p>
+    </aside>
+
+    <div id="drop" class="drop hidden"><div>Drop to add to your wallpaper folder</div></div>
+    <div id="toast" class="toast hidden"></div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

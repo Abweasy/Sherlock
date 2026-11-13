@@ -1,0 +1,43 @@
+name: Build
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+
+  windows:
+    needs: test
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Check the Win32 desktop bindings load
+        shell: bash
+        run: node -e "const d = require('./src/main/desktop/win32'); console.log('desktop layout:', d.probe(), '| fullscreen app:', d.isFullscreenAppRunning())"
+      - name: Build installer + portable exe
+        run: npx electron-builder --win --publish never
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LiveDesk-windows
+          path: |
+            dist/*.exe
+          if-no-files-found: error

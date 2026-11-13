@@ -1,0 +1,76 @@
+{
+  "name": "livedesk",
+  "productName": "LiveDesk",
+  "version": "0.1.0",
+  "description": "Live wallpaper engine for your desktop: video, web (HTML) and image wallpapers from a local folder.",
+  "main": "src/main/main.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test test/*.test.js",
+    "dist": "electron-builder --publish never",
+    "dist:win": "electron-builder --win --publish never",
+    "icons": "node scripts/make-icons.js"
+  },
+  "dependencies": {
+    "koffi": "^3.3.7"
+  },
+  "devDependencies": {
+    "electron": "^45.3.1",
+    "electron-builder": "^26.18.0"
+  },
+  "author": "LiveDesk contributors",
+  "build": {
+    "appId": "com.livedesk.app",
+    "productName": "LiveDesk",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "asarUnpack": [
+      "node_modules/koffi/**",
+      "node_modules/@koromix/**"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "runAfterFinish": true
+    },
+    "portable": {
+      "artifactName": "${productName}-${version}-portable.exe"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/icon.png",
+      "category": "public.app-category.utilities"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/icon.png",
+      "category": "Utility"
+    }
+  }
+}
