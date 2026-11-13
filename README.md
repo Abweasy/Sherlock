@@ -1,7 +1,7 @@
 # Sherlock Media Player
 
-A browser-based audio and video player. Everything runs in your browser: no build
-step, no dependencies, and your files never leave your computer.
+An audio and video player that runs in your browser or as a Windows desktop app.
+Your files never leave your computer.
 
 ## Features
 
@@ -19,12 +19,25 @@ step, no dependencies, and your files never leave your computer.
 
 ## Running it
 
-Open `index.html` in a browser, or serve the folder locally:
+**In a browser:** open `index.html`, or serve the folder locally:
 
 ```sh
 npm start            # runs: python3 -m http.server 8000
 # then visit http://localhost:8000
 ```
+
+**As a desktop app (Electron):**
+
+```sh
+npm install
+npm run app          # run the desktop app from source
+npm run build:win    # build dist/Sherlock-win32-x64/Sherlock.exe
+```
+
+The Windows build is a self-contained folder: copy it anywhere and double-click
+`Sherlock.exe`. It isn't code-signed, so Windows SmartScreen may ask you to
+confirm the first time ("More info" > "Run anyway"). `npm run icons` regenerates
+`build/icon.png` and `build/icon.ico` from `build/icon.svg`.
 
 ## Keyboard shortcuts
 
@@ -48,6 +61,8 @@ index.html          Page markup
 css/styles.css      Styles
 js/playlist.js      Playlist / play-order logic (no DOM; unit-tested)
 js/app.js           UI wiring: media element, controls, visualizer, shortcuts
+electron/main.js    Desktop wrapper (Electron window)
+build/              App icon (SVG source, PNG, Windows .ico) and icon generator
 tests/              Unit tests (node:test) and a Playwright end-to-end test
 ```
 

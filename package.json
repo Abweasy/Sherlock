@@ -1,12 +1,22 @@
 {
   "name": "sherlock-media-player",
+  "productName": "Sherlock",
   "version": "0.1.0",
-  "description": "A browser-based audio and video player with playlist, shuffle/repeat, visualizer and keyboard shortcuts.",
+  "description": "Sherlock Media Player: a desktop and browser audio/video player with playlist, shuffle/repeat, visualizer and keyboard shortcuts.",
   "private": true,
   "scripts": {
     "start": "python3 -m http.server 8000",
+    "app": "electron .",
     "test": "node --test tests/*.test.js",
-    "test:e2e": "node tests/e2e.js"
+    "test:e2e": "node tests/e2e.js",
+    "icons": "node build/make-icons.js",
+    "build:win": "electron-packager . Sherlock --platform=win32 --arch=x64 --out=dist --overwrite --asar --icon=build/icon.ico --app-copyright=\"Sherlock\" --win32metadata.ProductName=Sherlock --win32metadata.FileDescription=\"Sherlock Media Player\" --win32metadata.CompanyName=Sherlock --ignore=\"^/tests\" --ignore=\"^/dist\" --ignore=\"^/build/(make-icons\\.js|icon\\.svg|icon\\.ico)\" --ignore=\"^/node_modules\" --ignore=\"^/\\.gitignore\""
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@electron/packager": "^20.3.0",
+    "electron": "^45.3.1"
+  },
+  "main": "electron/main.js",
+  "author": "Sherlock"
 }
