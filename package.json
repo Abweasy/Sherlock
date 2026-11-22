@@ -1,0 +1,16 @@
+{
+  "name": "byte-rush",
+  "version": "0.1.0",
+  "description": "BYTE RUSH - an endless neon maze runner for mobile with online multiplayer",
+  "type": "module",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "node --watch server/server.js",
+    "test": "node --test test/*.test.js"
+  },
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

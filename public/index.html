@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#05060f">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BYTE RUSH">
+  <title>BYTE RUSH</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <!-- In-game HUD -->
+  <div id="hud" class="hidden">
+    <div class="hud-top">
+      <div class="hud-block">
+        <div class="hud-label">SCORE</div>
+        <div id="hud-score" class="hud-score">0</div>
+      </div>
+      <div class="hud-block center">
+        <div id="hud-chain" class="hud-chain"><span id="hud-chain-n">0</span><small> CHAIN</small></div>
+        <div id="hud-mult" class="hud-mult">x1</div>
+      </div>
+      <div class="hud-block right">
+        <div class="hud-label">DIST</div>
+        <div id="hud-dist" class="hud-dist">0</div>
+      </div>
+    </div>
+    <div id="hud-fx" class="hud-fx"></div>
+    <div id="hud-players" class="hud-players"></div>
+    <button id="btn-pause" class="icon-btn" aria-label="Pause">❚❚</button>
+    <div id="banner" class="banner"></div>
+    <div id="countdown" class="countdown hidden"></div>
+    <div id="spectate" class="spectate hidden">You were caught! Spectating…</div>
+    <div id="tutorial" class="tutorial hidden"></div>
+  </div>
+
+  <!-- On-screen d-pad (optional) -->
+  <div id="dpad" class="dpad hidden">
+    <button data-dir="0" class="dp up">▲</button>
+    <button data-dir="3" class="dp left">◀</button>
+    <button data-dir="1" class="dp right">▶</button>
+    <button data-dir="2" class="dp down">▼</button>
+  </div>
+
+  <div id="ui">
+    <!-- Main menu -->
+    <section id="screen-menu" class="screen">
+      <div class="logo"><span>BYTE</span><span>RUSH</span></div>
+      <div class="tag">Outrun the Void. Chain the dots.</div>
+      <div class="menu-stats"><span>BEST <b id="menu-best">0</b></span><span>◆ <b id="menu-coins">0</b></span></div>
+      <button class="btn primary" id="btn-solo">PLAY</button>
+      <button class="btn" id="btn-online">ONLINE</button>
+      <button class="btn" id="btn-powerups">POWER-UPS</button>
+      <div class="row">
+        <button class="btn small" id="btn-scores">SCORES</button>
+        <button class="btn small" id="btn-settings">SETTINGS</button>
+      </div>
+      <button class="link" id="btn-howto">How to play</button>
+    </section>
+
+    <!-- Power-ups / loadout shop -->
+    <section id="screen-powerups" class="screen hidden">
+      <h2>POWER-UPS</h2>
+      <div class="sub">Equip up to 3. Equipped power-ups appear in the maze. ◆ <b id="pu-coins">0</b></div>
+      <div id="loadout" class="loadout"></div>
+      <div id="pu-list" class="pu-list"></div>
+      <button class="btn" data-back>BACK</button>
+    </section>
+
+    <!-- Online -->
+    <section id="screen-online" class="screen hidden">
+      <h2>ONLINE</h2>
+      <div id="net-status" class="sub">Connecting…</div>
+      <label class="field">Your name <input id="in-name" maxlength="14" autocomplete="off"></label>
+      <button class="btn primary" id="btn-quick">QUICK MATCH</button>
+      <button class="btn" id="btn-create">CREATE PRIVATE ROOM</button>
+      <div class="row join-row">
+        <input id="in-code" maxlength="4" placeholder="CODE" autocapitalize="characters" autocomplete="off">
+        <button class="btn small" id="btn-join">JOIN</button>
+      </div>
+      <button class="btn" data-back>BACK</button>
+    </section>
+
+    <!-- Room lobby -->
+    <section id="screen-room" class="screen hidden">
+      <h2>ROOM <span id="room-code" class="code"></span></h2>
+      <div id="room-sub" class="sub">Share the code with friends.</div>
+      <ul id="room-players" class="room-players"></ul>
+      <button class="btn primary" id="btn-start">START GAME</button>
+      <div id="room-wait" class="sub hidden">Waiting for the host to start…</div>
+      <button class="btn" id="btn-share">SHARE INVITE</button>
+      <button class="btn" id="btn-leave">LEAVE</button>
+    </section>
+
+    <!-- Game over -->
+    <section id="screen-over" class="screen hidden">
+      <h2 id="over-title">GAME OVER</h2>
+      <div id="over-cause" class="sub"></div>
+      <div class="big-score" id="over-score">0</div>
+      <div id="over-new" class="new-best hidden">NEW BEST!</div>
+      <div class="over-grid">
+        <div><small>DISTANCE</small><b id="over-dist">0</b></div>
+        <div><small>BEST CHAIN</small><b id="over-chain">0</b></div>
+        <div><small>ENEMIES</small><b id="over-kills">0</b></div>
+        <div><small>COINS</small><b id="over-coins">+0</b></div>
+      </div>
+      <ol id="over-ranking" class="ranking hidden"></ol>
+      <button class="btn primary" id="btn-retry">PLAY AGAIN</button>
+      <button class="btn" id="btn-over-pu">POWER-UPS</button>
+      <button class="btn" id="btn-over-menu">MENU</button>
+    </section>
+
+    <!-- Pause -->
+    <section id="screen-pause" class="screen hidden">
+      <h2>PAUSED</h2>
+      <button class="btn primary" id="btn-resume">RESUME</button>
+      <button class="btn" id="btn-quit">QUIT</button>
+    </section>
+
+    <!-- Leaderboard -->
+    <section id="screen-scores" class="screen hidden">
+      <h2>HIGH SCORES</h2>
+      <div class="tabs">
+        <button class="tab active" data-board="solo">SOLO</button>
+        <button class="tab" data-board="online">ONLINE</button>
+      </div>
+      <ol id="score-list" class="score-list"></ol>
+      <button class="btn" data-back>BACK</button>
+    </section>
+
+    <!-- Settings -->
+    <section id="screen-settings" class="screen hidden">
+      <h2>SETTINGS</h2>
+      <label class="toggle"><input type="checkbox" id="set-sound"> Sound effects</label>
+      <label class="toggle"><input type="checkbox" id="set-music"> Music</label>
+      <label class="toggle"><input type="checkbox" id="set-dpad"> On-screen D-pad</label>
+      <label class="toggle"><input type="checkbox" id="set-haptics"> Vibration</label>
+      <label class="field">Name <input id="set-name" maxlength="14" autocomplete="off"></label>
+      <button class="btn" data-back>BACK</button>
+    </section>
+
+    <!-- How to play -->
+    <section id="screen-howto" class="screen hidden">
+      <h2>HOW TO PLAY</h2>
+      <div class="howto">
+        <p><b>Swipe</b> (or arrow keys / WASD) to steer your Bit through an endless maze.</p>
+        <p>The <b class="void">Void</b> rises from below and speeds up. Keep climbing!</p>
+        <p>Eat dots back-to-back to build your <b>chain</b>. Every 30 adds to your multiplier. Hit <b>300</b> for a <b>NOVA</b> that wipes the screen.</p>
+        <p>Grab a <b class="surge">Surge Core</b> to make enemies vulnerable, then eat them for big points.</p>
+        <p>Equip up to 3 <b>power-ups</b>; they show up in the maze. Collect <b class="coin">◆ coins</b> to unlock and upgrade more.</p>
+        <div id="enemy-guide" class="enemy-guide"></div>
+      </div>
+      <button class="btn" data-back>BACK</button>
+    </section>
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>
